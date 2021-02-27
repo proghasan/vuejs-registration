@@ -299,6 +299,10 @@ export default {
         this.errorMessages.push("Enter address");
       }
 
+      if(this.application.languages == '' || this.application.languages == null ||  this.application.languages.length == 0) {
+        this.errorMessages.push("Select languages");
+      }
+
       if(this.application.photo == '' || this.application.photo == null) {
         this.errorMessages.push("Select photo");
       }

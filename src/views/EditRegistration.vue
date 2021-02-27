@@ -326,6 +326,10 @@ export default {
       if(this.application.address_details == '' || this.application.address_details == null) {
         this.errorMessages.push("Enter address");
       }
+      
+      if(this.application.languages == '' || this.application.languages == null ||  this.application.languages.length == 0) {
+        this.errorMessages.push("Select languages");
+      }
 
       this.application.educations.forEach((education, key) => {
         if(education.exam_name == '' || education.university_name == '' || education.board_name == '' || education.result == ''){
