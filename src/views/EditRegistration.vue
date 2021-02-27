@@ -12,7 +12,7 @@
         {{ successMessage }}
       </div>
 
-    <form method="post" enctype="multipart/form-data" @submit.prevent="saveRegistration()">
+    <form method="post" enctype="multipart/form-data" @submit.prevent="updateRegistration()">
       <div class="mb-3">
         <label class="form-label">Applicant's Name</label>
         <input type="text" class="form-control" v-model="application.name" />
@@ -122,7 +122,7 @@
       </div>
       <div class="mb-3">
         <label class="form-label" style="margin-right: 22px">Training</label> 
-        <input type="radio" v-model="application.training" value="Yes" /> Yes
+        <input type="radio" v-model="application.training" value="Yes" @change="generateTraining()" /> Yes
         <input type="radio" v-model="application.training" value="No" /> No
       </div>
       <div class="mb-3" v-if="application.training == 'Yes'">
@@ -150,7 +150,7 @@
           </tbody>
         </table>
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary">Update</button>
     </form>
   </div>
 </template>
@@ -173,7 +173,7 @@ export default {
         training: "No",
         trainings: [],
         educations: [],
-        languages: [],
+        languages: null,
       },
       boards: [
         { name: "Dhaka" }, 
@@ -201,8 +201,13 @@ export default {
     };
   },
   async created() {
-    this.generateEducation();
-    this.generateTraining();
+    if(this.$route.params.id != undefined){
+     await this.getApplication();
+    }else{
+      this.generateEducation();
+      this.generateTraining();
+    }
+
     await this.$store.dispatch('registration/getDivisions');
     this.divisions = await this.$store.getters['registration/divisions'];
 
@@ -245,13 +250,20 @@ export default {
     
     removeEducation(education,educationInd) {
         if(education.id == 0){
-            this.application.educations.splice(educationInd, 1);
+          this.application.educations.splice(educationInd, 1);
         }else{
-            // delete data form database
+          let conf = confirm("Are you sure ?");
+          if(conf){
+            this.$store.dispatch('registration/deleteEducation', {educationId: education.id}).then(res => {
+              if(res)
+                this.application.educations.splice(educationInd, 1);
+            });
+          }
         }
     },
 
     generateTraining: function () {
+      if(this.application.training == 'No') return;
       let training = {
         id: 0,
         name: "",
@@ -262,23 +274,27 @@ export default {
 
     removeTraining: function(training, ind) {
         if(training.id == 0){
-            this.application.trainings.splice(ind, 1);
+          this.application.trainings.splice(ind, 1);
         }else{
-            // delete data form database
+          let conf = confirm("Are you sure ?");
+          if(conf){
+            this.$store.dispatch('registration/deleteTraining', {trainingId: training.id}).then(res => {
+              if(res)
+               this.application.trainings.splice(ind, 1);
+            });
+          }
         }
     },
 
     photoUpload: function(e) {
       this.application.photo = e.target.files[0];
-      // this.selectedPhoto= e.target.files[0];
     },
 
     cvUpload: function(e) {
       this.application.cv = e.target.files[0];
-      // this.selectedCv = e.target.files[0];
     },
 
-    saveRegistration: function () {
+    updateRegistration: function () {
       this.errorMessages = [];
       this.successMessage = null;
 
@@ -291,10 +307,27 @@ export default {
         }
       });
 
-      this.$store.dispatch('registration/save', fd).then(res => {
+      this.$store.dispatch('registration/update', fd).then(res => {
         this.successMessage = res;
+        this.getApplication();
       }).catch(errors => this.errorMessages = errors)
     },
+
+    getApplication: async function() {
+      await this.$store.dispatch('registration/getApplication', {registrationId: this.$route.params.id});
+      const application = await this.$store.getters['registration/application']; 
+      let districtId = application.district_id;
+      let upazilaId = application.upazila_id;
+      let languages = JSON.parse(application.languages);
+      this.application = application;
+      await this.getDistricts();
+      this.application.district_id = districtId;
+      await this.getUpazilas();
+      this.application.upazila_id = upazilaId;
+      this.application.languages = languages;
+      this.application.photo = '';
+      this.application.cv = '';
+    }
   },
 };
 </script>

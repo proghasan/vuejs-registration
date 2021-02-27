@@ -30,6 +30,13 @@ const routes = [
   },
 
   {
+    path: '/edit-registration/:id',
+    name: 'EditRegistration',
+    beforeEnter: guard,
+    component: () => import(/* webpackChunkName: "EditRegistration" */ '../views/EditRegistration.vue'),
+  },
+
+  {
     path: '/login',
     name: 'Login',
     component: Login

@@ -66,6 +66,68 @@ export default {
             })
         },
 
+        update: function(context, payload) {
+            return new Promise((resolve, reject) => {
+                axios.post('update_registration', payload, {
+                    headers: {
+                        Authorization: this.getters['auth/jwt'],
+                        "Content-Type": "application/json",
+                    }
+                }).then(response => resolve(response.data.message))
+                .catch((error) => reject(error.response.data.message))
+            })
+        },
+
+        deleteEducation: function(context, payload) {
+            return new Promise((resolve, reject) => {
+                axios.post('delete_education', payload, {
+                    headers: {
+                        Authorization: this.getters['auth/jwt'],
+                        "Content-Type": "application/json",
+                    }
+                }).then(response => resolve(response.data.status))
+                .catch((error) => reject(error.response.data.status))
+            })
+        },
+
+        deleteTraining: function(context, payload) {
+            return new Promise((resolve, reject) => {
+                axios.post('delete_training', payload, {
+                    headers: {
+                        Authorization: this.getters['auth/jwt'],
+                        "Content-Type": "application/json",
+                    }
+                }).then(response => resolve(response.data.status))
+                .catch((error) => reject(error.response.data.status))
+            })
+        },
+
+        getApplications: async function(context, payload) {
+            let url = 'get_applications';
+            if(payload.page >0)
+                url = 'get_applications?page='+payload.page;
+                
+            await axios.post(url, payload, {
+                headers: {
+                    Authorization: this.getters['auth/jwt'],
+                    "Content-Type": "application/json",
+                }
+            }).then(res => {
+                context.commit('setApplications', res.data.applications);
+            }).catch(error => console.log(error));
+        },
+
+        getApplication: async function(context, payload) {
+            await axios.post('get_application', payload, {
+                headers: {
+                    Authorization: this.getters['auth/jwt'],
+                    "Content-Type": "application/json",
+                }
+            }).then(res => {
+                context.commit('setApplication', res.data.application);
+            }).catch(error => console.log(error));
+        },
+
         getDivisions: async function(context,payload) {
             await axios.get('get_divisions', {
                 headers: {

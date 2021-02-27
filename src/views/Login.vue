@@ -102,7 +102,7 @@ export default {
             this.successMessage = null;
             this.$store.dispatch('auth/login', this.login).then(response => {
                 this.isLoading = false;
-                this.$router.push('/');
+                this.$router.push('/home');
             })
             .catch(error => {
                 this.errorMessage = error;
