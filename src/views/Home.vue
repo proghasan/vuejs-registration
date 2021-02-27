@@ -38,7 +38,7 @@
 
       <div class="col-md-12">
         <table class="table table-sm table-bordered">
-          <thead>
+          <thead class="text-center">
             <tr>
               <th>Applicant's Name</th>
               <th>Email Address</th>
@@ -49,13 +49,13 @@
               <th>Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="text-center">
             <tr v-for="(application, ind) in applications" :key="ind">
               <td>{{ application.name }}</td>
               <td>{{ application.email }}</td>
-              <td>{{ application.division_id }}</td>
-              <td>{{ application.district_id }}</td>
-              <td>{{ application.upazila_id }}</td>
+              <td>{{ application.division.name }}</td>
+              <td>{{ application.district.name }}</td>
+              <td>{{ application.upazila.name }}</td>
               <td>{{ application.entry_date }}</td>
               <td>
                 <router-link :to="{ name: 'EditRegistration', params: { id: application.id } }" class="btn btn-sm btn-warning">

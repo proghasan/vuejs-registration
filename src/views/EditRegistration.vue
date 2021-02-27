@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <p class="text-center">
-      <router-link to="login" class="btn btn-sm btn-success m-2">Login / Registration</router-link>
+      <router-link to="/home" class="btn btn-sm btn-success m-2">Home</router-link>
     </p>
-    <h1 class="text-center">Registration Form</h1>
+    <h1 class="text-center">Update Registration Form</h1>
       <div class="alert alert-danger" role="alert" v-for="(message, messageInd) in errorMessages" :key="messageInd">
         {{ message }}
       </div>

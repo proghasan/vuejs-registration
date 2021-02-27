@@ -105,7 +105,12 @@ export default {
                 this.$router.push('/home');
             })
             .catch(error => {
-                this.errorMessage = error;
+                console.log( typeof error)
+                if(typeof error == 'string')
+                    this.errorMessage.push(error);
+                else
+                    this.errorMessage = error;
+                    
                 this.isLoading = false;
             });
         },
