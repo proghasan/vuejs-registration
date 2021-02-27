@@ -85,28 +85,28 @@
                 <tr v-for="(education, educationInd) in application.educations" :key="educationInd">
                     <td>
                         <select class="form-control" v-model="education.exam_name">
-                            <option value="">Select Exam Name</option>
-                            <option :value="exam.name" v-for="(exam, examInd) in exams" :key="examInd">{{exam.name}}</option>
+                          <option value="">Select Exam Name</option>
+                          <option :value="exam.name" v-for="(exam, examInd) in exams" :key="examInd">{{exam.name}}</option>
                         </select>
                     </td>
                     <td>
                         <select class="form-control" v-model="education.university_name">
-                            <option value="">Select University Name</option>
-                            <option :value="university.name" v-for="(university, universityInd) in universities" :key="universityInd">{{university.name}}</option>
+                          <option value="">Select University Name</option>
+                          <option :value="university.name" v-for="(university, universityInd) in universities" :key="universityInd">{{university.name}}</option>
                         </select>
                     </td>
                     <td>
                         <select class="form-control" v-model="education.board_name">
-                            <option value="">Select Board Name</option>
-                            <option :value="board.name" v-for="(board, boardInd) in boards" :key="boardInd">{{board.name}}</option>
+                          <option value="">Select Board Name</option>
+                          <option :value="board.name" v-for="(board, boardInd) in boards" :key="boardInd">{{board.name}}</option>
                         </select>
                     </td>
                     <td>
-                        <input type="text" class="form-control" v-model="education.result">
+                      <input type="text" class="form-control" v-model="education.result">
                     </td>
                     <td>
-                        <button v-if="(application.educations.length -1) == educationInd" style="margin-right: 2px" class="btn btn-sm btn-primary" @click.prevent="generateEducation()">+ </button>
-                        <button class="btn btn-sm btn-danger" @click.prevent="removeEducation(education,educationInd)">X</button>
+                      <button v-if="(application.educations.length -1) == educationInd" style="margin-right: 2px" class="btn btn-sm btn-primary" @click.prevent="generateEducation()">+ </button>
+                      <button class="btn btn-sm btn-danger" @click.prevent="removeEducation(education,educationInd)">X</button>
                     </td>
                 </tr>
             </tbody>
@@ -150,7 +150,7 @@
           </tbody>
         </table>
       </div>
-      <button type="submit" class="btn btn-primary">Update</button>
+      <button type="submit" class="btn btn-primary" :disabled="isLoading">Update</button>
     </form>
   </div>
 </template>
@@ -158,6 +158,7 @@
 export default {
   data() {
     return {
+      isLoading: false,
       successMessage: null,
       errorMessages: [],
       application: {
@@ -298,6 +299,55 @@ export default {
       this.errorMessages = [];
       this.successMessage = null;
 
+      this.isLoading = true;
+      this.errorMessages = [];
+      this.successMessage = null;
+      
+      if(this.application.name == '' || this.application.name == null) {
+        this.errorMessages.push("Enter applicant's name");
+      }
+
+      if(this.application.email == '' || this.application.email == null) {
+        this.errorMessages.push("Enter applicant's email");
+      }
+
+      if(this.application.division_id == '' || this.application.division_id == null || this.application.division_id ==0) {
+        this.errorMessages.push("Select division");
+      }
+
+      if(this.application.district_id == '' || this.application.district_id == null || this.application.district_id ==0) {
+        this.errorMessages.push("Select district");
+      }
+
+      if(this.application.upazila_id == '' || this.application.upazila_id == null || this.application.upazila_id ==0) {
+        this.errorMessages.push("Select upazila");
+      }
+
+      if(this.application.address_details == '' || this.application.address_details == null) {
+        this.errorMessages.push("Enter address");
+      }
+
+      this.application.educations.forEach((education, key) => {
+        if(education.exam_name == '' || education.university_name == '' || education.board_name == '' || education.result == ''){
+          this.errorMessages.push(`Enter your all eduction information in ${key} number column`);
+          return
+        }
+      })
+
+      if(this.application.training == 'Yes'){
+        this.application.trainings.forEach((training, key) => {
+        if(training.name == '' || training.description == ''){
+          this.errorMessages.push(`Enter your all training information in ${key} number column`);
+          return
+        }
+      })
+      }
+
+      if(this.errorMessages.length > 0) {
+        this.isLoading = false;
+        return
+      };
+
       let fd = new FormData();
       Object.keys(this.application).map((key,value) =>{
         if(key == 'trainings' || key == 'educations' || key == 'languages') {
@@ -310,7 +360,11 @@ export default {
       this.$store.dispatch('registration/update', fd).then(res => {
         this.successMessage = res;
         this.getApplication();
-      }).catch(errors => this.errorMessages = errors)
+        this.isLoading = false;
+      }).catch(errors =>{
+        this.errorMessages = errors;
+        this.isLoading = false;
+      })
     },
 
     getApplication: async function() {
@@ -324,7 +378,7 @@ export default {
       this.application.district_id = districtId;
       await this.getUpazilas();
       this.application.upazila_id = upazilaId;
-      this.application.languages = languages;
+      this.application.languages = languages == null ?  [] : languages;
       this.application.photo = '';
       this.application.cv = '';
     }

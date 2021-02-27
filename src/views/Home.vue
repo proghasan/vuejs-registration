@@ -2,6 +2,9 @@
   <div class="container">
     <div class="row">
       <h3 class="text-center p-1">Registration List </h3>
+      <p>
+        <router-link to="/" class="btn btn-sm btn-primary m-2">Registration new applicant</router-link>
+      </p>
       <form>
         <div class="row mb-3">
           <div class="col-md-6">

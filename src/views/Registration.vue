@@ -1,7 +1,8 @@
 <template>
   <div class="container">
     <p class="text-center">
-      <router-link to="login" class="btn btn-sm btn-success m-2">Login / Registration</router-link>
+      <router-link to="login" class="btn btn-sm btn-danger m-2">Login / Registration</router-link>
+      <router-link to="/home" class="btn btn-sm btn-primary m-2">Home</router-link>
     </p>
     <h1 class="text-center">Registration Form</h1>
       <div class="alert alert-danger" role="alert" v-for="(message, messageInd) in errorMessages" :key="messageInd">
@@ -150,7 +151,7 @@
           </tbody>
         </table>
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary" :disabled="isLoading">Save</button>
     </form>
   </div>
 </template>
@@ -158,6 +159,7 @@
 export default {
   data() {
     return {
+      isLoading: false,
       successMessage: null,
       errorMessages: [],
       application: {
@@ -244,11 +246,7 @@ export default {
     },
     
     removeEducation(education,educationInd) {
-        if(education.id == 0){
-            this.application.educations.splice(educationInd, 1);
-        }else{
-            // delete data form database
-        }
+      this.application.educations.splice(educationInd, 1);
     },
 
     generateTraining: function () {
@@ -261,27 +259,74 @@ export default {
     },
 
     removeTraining: function(training, ind) {
-        if(training.id == 0){
-            this.application.trainings.splice(ind, 1);
-        }else{
-            // delete data form database
-        }
+      this.application.trainings.splice(ind, 1);
     },
 
     photoUpload: function(e) {
       this.application.photo = e.target.files[0];
-      // this.selectedPhoto= e.target.files[0];
     },
 
     cvUpload: function(e) {
       this.application.cv = e.target.files[0];
-      // this.selectedCv = e.target.files[0];
     },
 
     saveRegistration: function () {
+      this.isLoading = true;
       this.errorMessages = [];
       this.successMessage = null;
+      
+      if(this.application.name == '' || this.application.name == null) {
+        this.errorMessages.push("Enter applicant's name");
+      }
 
+      if(this.application.email == '' || this.application.email == null) {
+        this.errorMessages.push("Enter applicant's email");
+      }
+
+      if(this.application.division_id == '' || this.application.division_id == null || this.application.division_id ==0) {
+        this.errorMessages.push("Select division");
+      }
+
+      if(this.application.district_id == '' || this.application.district_id == null || this.application.district_id ==0) {
+        this.errorMessages.push("Select district");
+      }
+
+      if(this.application.upazila_id == '' || this.application.upazila_id == null || this.application.upazila_id ==0) {
+        this.errorMessages.push("Select upazila");
+      }
+
+      if(this.application.address_details == '' || this.application.address_details == null) {
+        this.errorMessages.push("Enter address");
+      }
+
+      if(this.application.photo == '' || this.application.photo == null) {
+        this.errorMessages.push("Select photo");
+      }
+
+      if(this.application.cv == '' || this.application.cv == null) {
+        this.errorMessages.push("Select cv");
+      }
+
+      this.application.educations.forEach((education, key) => {
+        if(education.exam_name == '' || education.university_name == '' || education.board_name == '' || education.result == ''){
+          this.errorMessages.push(`Enter your all eduction information in ${key} number column`);
+          return
+        }
+      })
+
+      if(this.application.training == 'Yes'){
+        this.application.trainings.forEach((training, key) => {
+        if(training.name == '' || training.description == ''){
+          this.errorMessages.push(`Enter your all training information in ${key} number column`);
+          return
+        }
+      })
+      }
+
+      if(this.errorMessages.length > 0) {
+        this.isLoading = false;
+        return
+      };
       let fd = new FormData();
       Object.keys(this.application).map((key,value) =>{
         if(key == 'trainings' || key == 'educations' || key == 'languages') {
@@ -293,8 +338,30 @@ export default {
 
       this.$store.dispatch('registration/save', fd).then(res => {
         this.successMessage = res;
-      }).catch(errors => this.errorMessages = errors)
+        this.isLoading = false;
+        this.clearForm();
+      }).catch(errors => {
+        this.errorMessages = errors;
+        this.isLoading = false;
+      })
     },
-  },
+    clearForm: function() {
+      this.application= {
+        id: 0,
+        name: '',
+        email: "",
+        division_id: '',
+        district_id: '',
+        upazila_id: '',
+        address_details: "",
+        photo: null,
+        cv: null,
+        training: "No",
+        trainings: [],
+        educations: [],
+        languages: [],
+      }
+    }
+  }
 };
 </script>
