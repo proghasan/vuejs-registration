@@ -52,7 +52,7 @@ export default {
 
         registration: function(context, payload) {
             return new Promise((resolve, reject) => {
-                axios.post('registration', payload, {
+                axios.post('user_registration', payload, {
                     headers: {
                         "Accept": "application/json"
                     }
